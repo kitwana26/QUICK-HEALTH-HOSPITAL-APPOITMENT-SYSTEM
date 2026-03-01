@@ -1,6 +1,15 @@
 import multiprocessing
 import os
+import sys
+from pathlib import Path
 
+
+# Get the project root and BACKEND directories
+root_dir = Path(__file__).resolve().parent
+project_dir = root_dir  # The directory containing this file is already BACKEND
+
+# Add project directory to Python path
+sys.path.insert(0, str(project_dir))
 
 bind = os.getenv("GUNICORN_BIND", "0.0.0.0:8000")
 workers = int(

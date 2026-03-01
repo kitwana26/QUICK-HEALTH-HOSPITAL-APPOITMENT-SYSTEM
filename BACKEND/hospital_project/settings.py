@@ -127,11 +127,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-# CORS
+# CORS - Allow all origins for development
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    'https://quick-health-hospital-appoitment-system-1jgln3530.vercel.app',
-    'https://quick-health-hospital-appoitment-system-1.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:5173',
     'https://quick-health-hospital-appoitmenet-sy.vercel.app',
+    'https://quick-health-hospital-appoitment-system-1.onrender.com',
 ]

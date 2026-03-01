@@ -21,8 +21,28 @@ export default function Login({ onLogin }) {
       localStorage.setItem('name', userName)
       onLogin({ token, role: userRole, username, name: userName })
     } catch (err) {
-      console.error('Login error:', err)
-      const errorMessage = err.response?.data?.error || err.message || 'Network error occurred'
+      console.error('Login error details:', {
+        message: err.message,
+        response: err.response,
+        request: err.request,
+        config: err.config
+      })
+      
+      let errorMessage = 'Network error occurred'
+      
+      if (err.response) {
+        // Server responded with error
+        errorMessage = `Server error: ${err.response.status} - ${err.response.statusText}`
+        if (err.response.data) {
+          errorMessage += ' | ' + JSON.stringify(err.response.data)
+        }
+      } else if (err.request) {
+        // Request made but no response
+        errorMessage = 'No response from server. Check if backend is running.'
+      } else {
+        errorMessage = err.message
+      }
+      
       alert('Login failed: ' + errorMessage)
     }
   }
@@ -44,8 +64,6 @@ export default function Login({ onLogin }) {
     <div className="login-container">
       <div className="login-box">
         <h1 className="app-title">welcome at Quick health hospital appoitment system</h1>
-        
-        
         
         <form onSubmit={isRegistering ? handleRegister : handleLogin}>
           {isRegistering && (
