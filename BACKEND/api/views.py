@@ -19,36 +19,43 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
-        data = request.data
-        username = data.get('username')
-        password = data.get('password')
-        email = data.get('email', '')
-        role = data.get('role', 'patient')
-        name = data.get('name', '')
-        
-        if not username or not password:
-            return Response({'error': 'username and password required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if User.objects.filter(username=username).exists():
-            return Response({'error': 'username already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            email=email,
-            role=role,
-            first_name=name,
-        )
-        
-        # Create patient profile if role is patient
-        if role == 'patient':
-            Patient.objects.create(user=user)
-        
-        return Response({
-            'message': 'registered',
-            'token': user.token,
-            'role': role
-        })
+        try:
+            data = request.data
+            username = data.get('username')
+            password = data.get('password')
+            email = data.get('email', '')
+            role = data.get('role', 'patient')
+            name = data.get('name', '')
+            
+            if not username or not password:
+                return Response({'error': 'username and password required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if User.objects.filter(username=username).exists():
+                return Response({'error': 'username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=email,
+                role=role,
+                first_name=name,
+            )
+            
+            # Create patient profile if role is patient
+            if role == 'patient':
+                Patient.objects.create(user=user)
+            
+            return Response({
+                'message': 'registered',
+                'token': user.token,
+                'role': role
+            })
+        except Exception as e:
+            import traceback
+            return Response({
+                'error': f'Registration failed: {str(e)}',
+                'details': traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginView(APIView):
