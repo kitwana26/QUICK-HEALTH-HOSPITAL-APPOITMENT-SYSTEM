@@ -8,11 +8,11 @@ from pathlib import Path
 root_dir = Path(__file__).resolve().parent
 backend_dir = root_dir / 'BACKEND'
 
-# Add both to Python path
-sys.path.insert(0, str(root_dir))
+# Add both to Python path - must add BACKEND first so Django is found
 sys.path.insert(0, str(backend_dir))
+sys.path.insert(0, str(root_dir))
 
-# Change to BACKEND directory
+# Change to BACKEND directory where Django project is located
 os.chdir(backend_dir)
 
 bind = os.getenv("GUNICORN_BIND", "0.0.0.0:8000")

@@ -100,7 +100,7 @@ export default function PatientDashboard({ user, onLogout }) {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1> Quick Health Appointment System - Patient Portal</h1>
+        <h1>  Quick Health Appointment System - Patient Portal</h1>
         <div className="header-right">
           <span>Welcome, {user.name || user.username}</span>
           <button className="btn-secondary" onClick={onLogout}>Logout</button>

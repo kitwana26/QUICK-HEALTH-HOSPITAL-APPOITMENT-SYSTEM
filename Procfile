@@ -1,2 +1,2 @@
 release: cd BACKEND && python manage.py migrate && python manage.py collectstatic --noinput && python superuser.py
-web: gunicorn --config gunicorn.conf.py hospital_project.wsgi:application
+web: gunicorn --config ../gunicorn.conf.py hospital_project.wsgi:application

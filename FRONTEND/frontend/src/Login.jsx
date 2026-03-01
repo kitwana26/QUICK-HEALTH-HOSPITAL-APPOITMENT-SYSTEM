@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import api from './api'
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -12,7 +12,8 @@ export default function Login({ onLogin }) {
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post('http://localhost:8000/api/login/', { username, password })
+      console.log('Attempting login to:', api.defaults.baseURL)
+      const res = await api.post('/login/', { username, password })
       const { token, role: userRole, name: userName } = res.data
       localStorage.setItem('token', token)
       localStorage.setItem('role', userRole)
@@ -20,14 +21,16 @@ export default function Login({ onLogin }) {
       localStorage.setItem('name', userName)
       onLogin({ token, role: userRole, username, name: userName })
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      console.error('Login error:', err)
+      const errorMessage = err.response?.data?.error || err.message || 'Network error occurred'
+      alert('Login failed: ' + errorMessage)
     }
   }
 
   const handleRegister = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post('http://localhost:8000/api/register/', { 
+      const res = await api.post('/register/', { 
         username, password, email, role, name 
       })
       alert('Registered successfully! Please login.')
