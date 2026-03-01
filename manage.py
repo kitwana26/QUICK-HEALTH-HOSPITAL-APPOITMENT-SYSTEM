@@ -7,8 +7,12 @@ from pathlib import Path
 
 def main():
     """Run administrative tasks."""
-    # Add BACKEND directory to Python path
-    backend_dir = Path(__file__).resolve().parent / 'BACKEND'
+    # Get the project root directory
+    root_dir = Path(__file__).resolve().parent
+    backend_dir = root_dir / 'BACKEND'
+    
+    # Add both root and BACKEND to Python path
+    sys.path.insert(0, str(root_dir))
     sys.path.insert(0, str(backend_dir))
     
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hospital_project.settings')

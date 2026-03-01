@@ -1,9 +1,19 @@
 import multiprocessing
 import os
+import sys
+from pathlib import Path
 
 
-# Change to BACKEND directory for correct imports
-os.chdir(os.path.join(os.path.dirname(__file__), 'BACKEND'))
+# Get the project root and BACKEND directories
+root_dir = Path(__file__).resolve().parent
+backend_dir = root_dir / 'BACKEND'
+
+# Add both to Python path
+sys.path.insert(0, str(root_dir))
+sys.path.insert(0, str(backend_dir))
+
+# Change to BACKEND directory
+os.chdir(backend_dir)
 
 bind = os.getenv("GUNICORN_BIND", "0.0.0.0:8000")
 workers = int(
