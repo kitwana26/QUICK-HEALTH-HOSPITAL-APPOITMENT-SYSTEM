@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import api from './api'
 
 export default function Register(){
   const [username, setUsername] = useState('')
@@ -10,7 +10,7 @@ export default function Register(){
   const submit = async e => {
     e.preventDefault()
     try{
-      const res = await axios.post('http://localhost:8000/api/register/', { username, password, email, role })
+      const res = await api.post('/register/', { username, password, email, role })
       alert('Registered — token: ' + res.data.token)
     }catch(err){
       alert(err.response?.data?.error || err.message)
