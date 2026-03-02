@@ -7,7 +7,7 @@ console.log('API Base URL:', API_BASE_URL)
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -21,6 +21,8 @@ api.interceptors.response.use(
     if (error.response) {
       console.error('Response status:', error.response.status)
       console.error('Response data:', error.response.data)
+    } else if (error.code === 'ECONNABORTED') {
+      console.error('Request timeout: backend may be waking up (cold start)')
     }
     return Promise.reject(error)
   }

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: quick-health-hospital
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      bash build.sh
+    startCommand: cd BACKEND && gunicorn --config ../gunicorn.conf.py hospital_project.wsgi:application

@@ -8,6 +8,13 @@ export default function Login({ onLogin }) {
   const [isRegistering, setIsRegistering] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  
+  const getErrorMessage = (err) => {
+    if (err.response?.data?.error) return err.response.data.error
+    if (typeof err.response?.data === 'string') return err.response.data
+    if (err.code === 'ECONNABORTED') return 'Server is taking too long to respond. Please try again in a few seconds.'
+    return err.message || 'Unexpected error'
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -20,22 +27,29 @@ export default function Login({ onLogin }) {
       localStorage.setItem('name', userName)
       onLogin({ token, role: userRole, username, name: userName })
     } catch (err) {
-      const message = err.response?.data?.error || err.message
-      alert(message)
+      alert(getErrorMessage(err))
     }
   }
 
   const handleRegister = async (e) => {
     e.preventDefault()
     try {
-      await api.post('/register/', {
+      const res = await api.post('/register/', {
         username, password, email, role, name 
       })
+      const { token, role: userRole } = res.data
+      if (token) {
+        localStorage.setItem('token', token)
+        localStorage.setItem('role', userRole || role)
+        localStorage.setItem('username', username)
+        localStorage.setItem('name', name)
+        onLogin({ token, role: userRole || role, username, name })
+        return
+      }
       alert('Registered successfully! Please login.')
       setIsRegistering(false)
     } catch (err) {
-      const message = err.response?.data?.error || err.message
-      alert(message)
+      alert(getErrorMessage(err))
     }
   }
 
@@ -105,6 +119,7 @@ export default function Login({ onLogin }) {
         <p className="toggle-text">
           {isRegistering ? 'Already have an account?' : "Don't have an account?"}
           <button 
+            type="button"
             className="btn-link" 
             onClick={() => setIsRegistering(!isRegistering)}
           >
