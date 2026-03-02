@@ -173,6 +173,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:5173',
+    'http://localhost:8000',
     'https://quick-health-hospital-appoitmenet-sy.vercel.app',
+    'https://quick-health-hospital-appoitment-sy-xi.vercel.app',
     'https://quick-health-hospital-appoitment-system-1.onrender.com',
 ]

@@ -7,8 +7,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
-  // This helps with CORS in production
+  // Always use production API URL - do not allow override
   define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://quick-health-hospital-appoitment-system-1.onrender.com')
+    'import.meta.env.VITE_API_URL': JSON.stringify('https://quick-health-hospital-appoitment-system-1.onrender.com')
   }
 })
