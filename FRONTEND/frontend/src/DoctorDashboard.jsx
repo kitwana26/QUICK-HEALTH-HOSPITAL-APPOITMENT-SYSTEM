@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from './api'
 import Calendar from './Calendar'
 import MedicalRecords from './MedicalRecords'
-
-const API_URL = 'http://localhost:8000/api'
 
 export default function DoctorDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('patients')
@@ -12,9 +10,6 @@ export default function DoctorDashboard({ user, onLogout }) {
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [message, setMessage] = useState('')
 
-  const token = localStorage.getItem('token')
-  const config = { headers: { Authorization: `Token ${token}` } }
-
   useEffect(() => {
     fetchPatients()
     fetchAppointments()
@@ -22,7 +17,7 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const fetchPatients = async () => {
     try {
-      const res = await axios.get(`${API_URL}/doctor/patients/`, config)
+      const res = await api.get('/doctor/patients/')
       setPatients(Object.entries(res.data).map(([username, data]) => ({ username, ...data })))
     } catch (err) {
       console.error(err)
@@ -31,7 +26,7 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get(`${API_URL}/appointments/`, config)
+      const res = await api.get('/appointments/')
       setAppointments(Object.entries(res.data).map(([id, data]) => ({ id: parseInt(id), ...data })))
     } catch (err) {
       console.error(err)
@@ -40,7 +35,7 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const handleSignPatient = async (patientUsername) => {
     try {
-      await axios.post(`${API_URL}/doctor/patients/${patientUsername}/sign`, {}, config)
+      await api.post(`/doctor/patients/${patientUsername}/sign`, {})
       setMessage('Patient signed successfully!')
       setTimeout(() => setMessage(''), 3000)
       fetchPatients()
@@ -52,7 +47,7 @@ export default function DoctorDashboard({ user, onLogout }) {
   const handleDischargePatient = async (patientUsername) => {
     if (!confirm('Are you sure you want to discharge this patient?')) return
     try {
-      await axios.post(`${API_URL}/doctor/patients/${patientUsername}/discharge`, {}, config)
+      await api.post(`/doctor/patients/${patientUsername}/discharge`, {})
       setMessage('Patient discharged successfully!')
       setTimeout(() => setMessage(''), 3000)
       fetchPatients()
@@ -64,7 +59,7 @@ export default function DoctorDashboard({ user, onLogout }) {
   const handleDeletePatient = async (patientUsername) => {
     if (!confirm('Are you sure you want to delete this patient record?')) return
     try {
-      await axios.delete(`${API_URL}/doctor/patients/${patientUsername}/`, config)
+      await api.delete(`/doctor/patients/${patientUsername}/`)
       setMessage('Patient deleted successfully!')
       setTimeout(() => setMessage(''), 3000)
       fetchPatients()
@@ -75,7 +70,7 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const handleApproveAppointment = async (appointmentId) => {
     try {
-      await axios.put(`${API_URL}/appointments/${appointmentId}/`, { status: 'approved' }, config)
+      await api.put(`/appointments/${appointmentId}/`, { status: 'approved' })
       setMessage('Appointment approved successfully!')
       setTimeout(() => setMessage(''), 3000)
       fetchAppointments()
@@ -86,7 +81,7 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const handleRejectAppointment = async (appointmentId) => {
     try {
-      await axios.put(`${API_URL}/appointments/${appointmentId}/`, { status: 'rejected' }, config)
+      await api.put(`/appointments/${appointmentId}/`, { status: 'rejected' })
       setMessage('Appointment rejected!')
       setTimeout(() => setMessage(''), 3000)
       fetchAppointments()
@@ -97,7 +92,7 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const handleCompleteAppointment = async (appointmentId) => {
     try {
-      await axios.put(`${API_URL}/appointments/${appointmentId}/`, { status: 'completed' }, config)
+      await api.put(`/appointments/${appointmentId}/`, { status: 'completed' })
       setMessage('Appointment completed!')
       setTimeout(() => setMessage(''), 3000)
       fetchAppointments()

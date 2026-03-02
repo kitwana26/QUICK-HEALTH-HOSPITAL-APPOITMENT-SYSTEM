@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const API_URL = 'http://localhost:8000/api'
+import api from './api'
 
 export default function MedicalRecords({ user, role }) {
   const [records, setRecords] = useState({})
@@ -16,9 +14,6 @@ export default function MedicalRecords({ user, role }) {
   })
   const [message, setMessage] = useState('')
 
-  const token = localStorage.getItem('token')
-  const config = { headers: { Authorization: `Token ${token}` } }
-
   useEffect(() => {
     fetchRecords()
     if (role === 'doctor') {
@@ -28,7 +23,7 @@ export default function MedicalRecords({ user, role }) {
 
   const fetchRecords = async () => {
     try {
-      const res = await axios.get(`${API_URL}/medical-records/`, config)
+      const res = await api.get('/medical-records/')
       setRecords(res.data)
     } catch (err) {
       console.error(err)
@@ -37,7 +32,7 @@ export default function MedicalRecords({ user, role }) {
 
   const fetchPatients = async () => {
     try {
-      const res = await axios.get(`${API_URL}/doctor/patients/`, config)
+      const res = await api.get('/doctor/patients/')
       setPatients(res.data)
     } catch (err) {
       console.error(err)
@@ -47,10 +42,10 @@ export default function MedicalRecords({ user, role }) {
   const handleCreateRecord = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/medical-records/`, {
+      await api.post('/medical-records/', {
         patient_username: selectedPatient,
         ...newRecord
-      }, config)
+      })
       setMessage('Medical record created successfully!')
       setShowForm(false)
       setNewRecord({ diagnosis: '', treatment: '', medications: '', notes: '' })

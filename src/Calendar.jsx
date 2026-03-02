@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const API_URL = 'http://localhost:8000/api'
+import api from './api'
 
 export default function Calendar({ user, role }) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [appointments, setAppointments] = useState({})
   const [selectedDate, setSelectedDate] = useState(null)
   const [dayAppointments, setDayAppointments] = useState([])
-
-  const token = localStorage.getItem('token')
-  const config = { headers: { Authorization: `Token ${token}` } }
 
   useEffect(() => {
     fetchAppointments()
@@ -24,9 +19,8 @@ export default function Calendar({ user, role }) {
       const startDate = startOfMonth.toISOString().split('T')[0]
       const endDate = endOfMonth.toISOString().split('T')[0]
 
-      const res = await axios.get(
-        `${API_URL}/appointments/calendar/?start_date=${startDate}&end_date=${endDate}`,
-        config
+      const res = await api.get(
+        `/appointments/calendar/?start_date=${startDate}&end_date=${endDate}`
       )
       setAppointments(res.data)
     } catch (err) {
@@ -81,7 +75,7 @@ export default function Calendar({ user, role }) {
 
   const handleUpdateStatus = async (appointmentId, newStatus) => {
     try {
-      await axios.put(`${API_URL}/appointments/${appointmentId}/`, { status: newStatus }, config)
+      await api.put(`/appointments/${appointmentId}/`, { status: newStatus })
       fetchAppointments()
       if (selectedDate) {
         setDayAppointments(getAppointmentsForDay(selectedDate))

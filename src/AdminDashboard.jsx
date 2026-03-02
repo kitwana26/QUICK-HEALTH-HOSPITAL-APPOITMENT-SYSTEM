@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const API_URL = 'http://localhost:8000/api'
+import api from './api'
 
 export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('doctors')
@@ -14,9 +12,6 @@ export default function AdminDashboard({ user, onLogout }) {
   const [newDoctor, setNewDoctor] = useState({ username: '', password: '', email: '', name: '' })
   const [assignData, setAssignData] = useState({ patient_username: '', doctor_username: '', disease: '' })
 
-  const token = localStorage.getItem('token')
-  const config = { headers: { Authorization: `Token ${token}` } }
-
   useEffect(() => {
     fetchDoctors()
     fetchPatients()
@@ -24,7 +19,7 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/doctors/`, config)
+      const res = await api.get('/admin/doctors/')
       setDoctors(res.data)
     } catch (err) {
       console.error(err)
@@ -33,7 +28,7 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const fetchPatients = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/patients/`, config)
+      const res = await api.get('/admin/patients/')
       setPatients(Object.entries(res.data).map(([username, data]) => ({ username, ...data })))
     } catch (err) {
       console.error(err)
@@ -43,7 +38,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const handleAddDoctor = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/admin/doctors/`, newDoctor, config)
+      await api.post('/admin/doctors/', newDoctor)
       alert('Doctor added successfully!')
       setShowAddDoctor(false)
       setNewDoctor({ username: '', password: '', email: '', name: '' })
@@ -56,7 +51,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const handleDeleteDoctor = async (username) => {
     if (!confirm('Are you sure you want to delete this doctor?')) return
     try {
-      await axios.delete(`${API_URL}/admin/doctors/${username}/`, config)
+      await api.delete(`/admin/doctors/${username}/`)
       fetchDoctors()
     } catch (err) {
       alert(err.response?.data?.error || err.message)
@@ -66,7 +61,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const handleAssignPatient = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/admin/patients/`, assignData, config)
+      await api.post('/admin/patients/', assignData)
       alert('Patient assigned to doctor!')
       setShowAssignPatient(false)
       setAssignData({ patient_username: '', doctor_username: '', disease: '' })
@@ -79,7 +74,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const handleDeletePatient = async (username) => {
     if (!confirm('Are you sure you want to delete this patient?')) return
     try {
-      await axios.delete(`${API_URL}/admin/patients/${username}/`, config)
+      await api.delete(`/admin/patients/${username}/`)
       fetchPatients()
     } catch (err) {
       alert(err.response?.data?.error || err.message)
