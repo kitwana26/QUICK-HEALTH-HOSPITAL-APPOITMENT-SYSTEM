@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import api from './api'
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -12,7 +12,7 @@ export default function Login({ onLogin }) {
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post('http://localhost:8000/api/login/', { username, password })
+      const res = await api.post('/login/', { username, password })
       const { token, role: userRole, name: userName } = res.data
       localStorage.setItem('token', token)
       localStorage.setItem('role', userRole)
@@ -20,20 +20,22 @@ export default function Login({ onLogin }) {
       localStorage.setItem('name', userName)
       onLogin({ token, role: userRole, username, name: userName })
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      const message = err.response?.data?.error || err.message
+      alert(message)
     }
   }
 
   const handleRegister = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post('http://localhost:8000/api/register/', { 
+      await api.post('/register/', {
         username, password, email, role, name 
       })
       alert('Registered successfully! Please login.')
       setIsRegistering(false)
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      const message = err.response?.data?.error || err.message
+      alert(message)
     }
   }
 

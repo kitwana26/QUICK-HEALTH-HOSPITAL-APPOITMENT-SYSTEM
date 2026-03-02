@@ -3,7 +3,9 @@ Django settings for hospital_project project.
 """
 
 import os
+import importlib.util
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,9 +37,10 @@ INSTALLED_APPS = [
     'api',
 ]
 
+HAS_WHITENOISE = importlib.util.find_spec("whitenoise") is not None
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -46,6 +49,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if HAS_WHITENOISE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'hospital_project.urls'
 
@@ -68,17 +73,51 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hospital_project.wsgi.application'
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "hospital_db"),
-        'USER': os.environ.get("DB_USER","postgress"),
-        'PASSWORD': os.environ.get("DB_PASSWORD", "2002"),
-        'HOST': os.environ.get("DB_HOST", "localhost"),
-        'PORT': os.environ.get("DB_PORT", "5432"),
+database_url = os.environ.get("DATABASE_URL", "").strip()
+db_name = os.environ.get("DB_NAME", "").strip()
+db_host = os.environ.get("DB_HOST", "").strip()
 
+if database_url:
+    parsed = urlparse(database_url)
+    query = parse_qs(parsed.query)
+    engine = "django.db.backends.postgresql"
+    if parsed.scheme in ("postgresql+psycopg2", "postgres+psycopg2"):
+        engine = "django.db.backends.postgresql"
+    elif parsed.scheme in ("postgresql", "postgres"):
+        engine = "django.db.backends.postgresql"
+
+    db_config = {
+        "default": {
+            "ENGINE": engine,
+            "NAME": parsed.path.lstrip("/"),
+            "USER": parsed.username or "",
+            "PASSWORD": parsed.password or "",
+            "HOST": parsed.hostname or "",
+            "PORT": str(parsed.port or ""),
+        }
     }
-}
+    if "sslmode" in query and query["sslmode"]:
+        db_config["default"]["OPTIONS"] = {"sslmode": query["sslmode"][0]}
+    DATABASES = db_config
+elif db_name or db_host:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db_name or "hospital_db",
+            "USER": os.environ.get("DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+            "HOST": db_host or "localhost",
+            "PORT": os.environ.get("DB_PORT", "5432"),
+        }
+    }
+else:
+    # Local fallback to avoid production crashes when PostgreSQL env vars are missing.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -106,7 +145,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if HAS_WHITENOISE:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -26,6 +28,9 @@ class RegisterView(APIView):
             email = data.get('email', '')
             role = data.get('role', 'patient')
             name = data.get('name', '')
+
+            if role not in ['admin', 'doctor', 'patient']:
+                return Response({'error': 'invalid role'}, status=status.HTTP_400_BAD_REQUEST)
             
             if not username or not password:
                 return Response({'error': 'username and password required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -51,10 +56,8 @@ class RegisterView(APIView):
                 'role': role
             })
         except Exception as e:
-            import traceback
             return Response({
                 'error': f'Registration failed: {str(e)}',
-                'details': traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -63,21 +66,34 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
-        data = request.data
-        username = data.get('username')
-        password = data.get('password')
-        
-        user = authenticate(username=username, password=password)
-        
-        if user is None:
-            return Response({'error': 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({
-            'token': user.token,
-            'role': user.role,
-            'username': user.username,
-            'name': user.first_name
-        })
+        try:
+            data = request.data
+            username = data.get('username')
+            password = data.get('password')
+
+            if not username or not password:
+                return Response({'error': 'username and password required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = authenticate(username=username, password=password)
+
+            if user is None:
+                return Response({'error': 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Keep compatibility with existing users created before token generation logic.
+            if not user.token:
+                user.token = uuid.uuid4().hex
+                user.save(update_fields=['token'])
+
+            return Response({
+                'token': user.token,
+                'role': user.role,
+                'username': user.username,
+                'name': user.first_name
+            })
+        except Exception as e:
+            return Response({
+                'error': f'Login failed: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class DashboardView(APIView):

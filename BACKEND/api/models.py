@@ -6,6 +6,7 @@ import uuid
 class User(AbstractUser):
     """Custom User model with role field"""
     ROLE_CHOICES = [
+        ('admin', 'Admin'),
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     ]
