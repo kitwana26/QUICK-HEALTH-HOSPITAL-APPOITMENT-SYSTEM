@@ -13,6 +13,15 @@ const api = axios.create({
   },
 })
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers = config.headers || {}
+    config.headers.Authorization = `Token ${token}`
+  }
+  return config
+})
+
 // Add response interceptor for debugging
 api.interceptors.response.use(
   response => response,

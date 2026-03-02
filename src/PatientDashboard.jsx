@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from './api'
 import Calendar from './Calendar'
 import MedicalRecords from './MedicalRecords'
-
-const API_URL = 'http://localhost:8000/api'
 
 export default function PatientDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('profile')
@@ -28,10 +26,6 @@ export default function PatientDashboard({ user, onLogout }) {
   const [showCalendar, setShowCalendar] = useState(false)
   const [calendarKey, setCalendarKey] = useState(0)
 
-  const token = localStorage.getItem('token')
-  const username = localStorage.getItem('username')
-  const config = { headers: { Authorization: `Token ${token}` } }
-
   useEffect(() => {
     fetchProfile()
     fetchDoctors()
@@ -39,7 +33,7 @@ export default function PatientDashboard({ user, onLogout }) {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${API_URL}/patient/profile/`, config)
+      const res = await api.get('/patient/profile/')
       if (res.data && Object.keys(res.data).length > 0) {
         setProfile(res.data)
         if (res.data.disease) {
@@ -53,7 +47,7 @@ export default function PatientDashboard({ user, onLogout }) {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/doctors/`, config)
+      const res = await api.get('/admin/doctors/')
       setDoctors(res.data)
     } catch (err) {
       console.error(err)
@@ -63,7 +57,7 @@ export default function PatientDashboard({ user, onLogout }) {
   const handleSaveProfile = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/patient/profile/`, profile, config)
+      await api.post('/patient/profile/', profile)
       setMessage('Profile saved successfully!')
       setTimeout(() => setMessage(''), 3000)
     } catch (err) {
@@ -74,7 +68,7 @@ export default function PatientDashboard({ user, onLogout }) {
   const handleMakeAppointment = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/patient/appointment/`, appointment, config)
+      await api.post('/patient/appointment/', appointment)
       setMessage('Appointment requested successfully!')
       setTimeout(() => setMessage(''), 3000)
       // Clear form after successful booking
