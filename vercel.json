@@ -1,5 +1,5 @@
 {
-  "installCommand": "cd FRONTEND/frontend && npm install",
-  "buildCommand": "cd FRONTEND/frontend && npm run build",
-  "outputDirectory": "FRONTEND/frontend/dist"
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
 }
