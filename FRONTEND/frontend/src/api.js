@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'https://quick-health-hospital-appoitment-system-1.onrender.com'
+// Hardcoded production API URL - do not change
+const API_BASE_URL = 'https://quick-health-hospital-appoitment-system-1.onrender.com'
 
 console.log('API Base URL:', API_BASE_URL)
 
