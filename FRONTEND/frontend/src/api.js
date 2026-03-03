@@ -30,6 +30,20 @@ api.interceptors.response.use(
     if (error.response) {
       console.error('Response status:', error.response.status)
       console.error('Response data:', error.response.data)
+      if (error.response.status === 401) {
+        const detail = error.response.data?.detail || ''
+        const errMsg = String(detail).toLowerCase()
+        if (errMsg.includes('invalid token') || errMsg.includes('authentication credentials')) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('role')
+          localStorage.removeItem('username')
+          localStorage.removeItem('name')
+          if (typeof window !== 'undefined') {
+            window.alert('Session imeisha. Tafadhali login tena.')
+            window.location.reload()
+          }
+        }
+      }
     } else if (error.code === 'ECONNABORTED') {
       console.error('Request timeout: backend may be waking up (cold start)')
     }

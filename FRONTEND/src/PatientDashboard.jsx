@@ -61,7 +61,7 @@ export default function PatientDashboard({ user, onLogout }) {
       setMessage('Profile saved successfully!')
       setTimeout(() => setMessage(''), 3000)
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      alert(err.response?.data?.error || err.response?.data?.detail || err.message)
     }
   }
 
@@ -81,7 +81,7 @@ export default function PatientDashboard({ user, onLogout }) {
       // Switch to calendar view to see the appointment
       setActiveTab('calendar')
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      alert(err.response?.data?.error || err.response?.data?.detail || err.message)
     }
   }
 
@@ -94,7 +94,7 @@ export default function PatientDashboard({ user, onLogout }) {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1> Quick Health Appointment System - Patient Portal</h1>
+        <h1>  Quick Health Appointment System - Patient Portal</h1>
         <div className="header-right">
           <span>Welcome, {user.name || user.username}</span>
           <button className="btn-secondary" onClick={onLogout}>Logout</button>

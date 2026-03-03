@@ -61,7 +61,7 @@ export default function PatientDashboard({ user, onLogout }) {
       setMessage('Profile saved successfully!')
       setTimeout(() => setMessage(''), 3000)
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      alert(err.response?.data?.error || err.response?.data?.detail || err.message)
     }
   }
 
@@ -81,7 +81,7 @@ export default function PatientDashboard({ user, onLogout }) {
       // Switch to calendar view to see the appointment
       setActiveTab('calendar')
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      alert(err.response?.data?.error || err.response?.data?.detail || err.message)
     }
   }
 
